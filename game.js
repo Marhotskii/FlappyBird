@@ -83,6 +83,11 @@ const bird = {
 
 	frame : 0,
 
+	gravity : 0.25,
+	jump : 4.6,
+	speed : 0,
+
+
 	draw : function(){
 		let bird = this.animation[this.frame];
 
@@ -92,7 +97,7 @@ const bird = {
 	},
 
 	flap : function(){
-
+		this.speed =- this.jump;	
 	},
 
 	update : function(){
@@ -104,6 +109,13 @@ const bird = {
 
 		// Frame goes from 0 to 4, them again 0
 		this.frame = this.frame % this.animation.length;
+
+		if (state.current == state.getReady){
+
+		} else {
+			this.speed += this.gravity;
+			this.y += this.speed;
+		}
 	}
 }
 
