@@ -10,6 +10,29 @@ let frames = 0;
 const sprite = new Image();
 sprite.src = "img/sprite.png";
 
+//Game sstate
+const state = {
+	current : 0,
+	getReady : 0,
+	game : 1,
+	over : 2
+}
+
+// Control the game
+canvas.addEventListener("click", function(event){
+	switch(state.current){
+		case state.getReady:
+			state.current = state.game;
+			break;
+		case state.game:
+			bird.flap();
+			break;
+		case state.over:
+			state.current = state.getReady;
+			break;
+	}
+});
+
 // Background
 const background = {
 	sX : 0,
@@ -66,7 +89,11 @@ const bird = {
 		context.drawImage(sprite, bird.sX, bird.sY, this.w, this.h, 
 						  this.x - this.w/2, this.y - this.h/2,
 						  this.w, this.h);
-	}
+	},
+
+	flap : function(){
+
+	},
 }
 
 // Get ready message
@@ -79,8 +106,27 @@ const getReady = {
 	y : 80,
 
 	draw : function(){
-		context.drawImage(sprite, this.sX, this.sY, this.w, this.h, 
+		if (state.current == state.getReady){
+			context.drawImage(sprite, this.sX, this.sY, this.w, this.h, 
 						  this.x, this.y, this.w, this.h);
+		}
+	}
+}
+
+// Gameover message
+const gameOver = {
+	sX : 175,
+	sY : 228, 
+	w : 225,
+	h : 202,
+	x : canvas.width/2 - 225/2,
+	y : 80,
+
+	draw : function(){
+		if (state.current == state.over){
+			context.drawImage(sprite, this.sX, this.sY, this.w, this.h, 
+						  	  this.x, this.y, this.w, this.h);
+		}
 	}
 }
 
@@ -93,6 +139,7 @@ function draw(){
 	foreground.draw();
 	bird.draw();
 	getReady.draw();
+	gameOver.draw();
 }
 
 // Update
