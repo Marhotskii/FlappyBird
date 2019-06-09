@@ -11,7 +11,23 @@ const DEGREE = Math.PI/180;
 const sprite = new Image();
 sprite.src = "img/sprite.png";
 
-//Game sstate
+// Load sounds
+const SCORE_S = new Audio();
+SCORE_S.src = "audio/sfx_point.wav";
+
+const FLAP = new Audio();
+FLAP.src = "audio/sfx_flap.wav";
+
+const HIT = new Audio();
+HIT.src = "audio/sfx_hit.wav";
+
+const SWOOSHING = new Audio();
+SWOOSHING.src = "audio/sfx_swooshing.wav";
+
+const DIE = new Audio();
+DIE.src = "audio/sfx_die.wav";
+
+//Game state
 const state = {
 	current : 0,
 	getReady : 0,
@@ -19,17 +35,41 @@ const state = {
 	over : 2
 }
 
+// Start button coord
+const startBtn = {
+	x : 120,
+	y : 263,
+	w : 83,
+	h : 29
+}
+
 // Control the game
 canvas.addEventListener("click", function(event){
 	switch(state.current){
 		case state.getReady:
 			state.current = state.game;
+			SWOOSHING.play();
 			break;
 		case state.game:
 			bird.flap();
+			FLAP.play();
 			break;
 		case state.over:
-			state.current = state.getReady;
+			let rect = canvas.getBoundingClientRect();
+			let clickX = event.clientX - rect.left;
+			let clickY = event.clientY - rect.top;
+
+			// Check if we click on the start button
+			if (clickX >= startBtn.x && 
+				clickX <= startBtn.x + startBtn.w &&
+				clickY >= startBtn.y && 
+				clickY <= startBtn.y + startBtn.h){
+					pipes.reset();
+					bird.speedReset();
+					score.reset();
+					state.current = state.getReady;
+			}
+			
 			break;
 	}
 });
@@ -139,6 +179,7 @@ const bird = {
 				this.y = canvas.height - foreground.h - this.h/2;
 				if (state.current == state.game){
 					state.current = state.over;
+					DIE.play();
 				}
 			}
 
@@ -150,6 +191,9 @@ const bird = {
 				this.rotation = -25 * DEGREE;
 			}
 		}
+	},
+	speedReset : function(){
+		this.speed = 0;
 	}
 }
 
@@ -177,7 +221,7 @@ const gameOver = {
 	w : 225,
 	h : 202,
 	x : canvas.width/2 - 225/2,
-	y : 80,
+	y : 90,
 
 	draw : function(){
 		if (state.current == state.over){
@@ -202,8 +246,8 @@ const pipes = {
 
 	w : 53,
 	h : 400,
-	gap : 85,
-	maxYPos : -150,
+	gap : 150,
+	maxYPos : -180,
 	dx : 2,
 
 	draw : function(){
@@ -244,6 +288,7 @@ const pipes = {
 				bird.y + bird.radius > p.y &&
 				bird.y - bird.radius < p.y + this.h){
 					state.current = state.over;
+				HIT.play();
 			}
 
 			// Bottom pipe
@@ -252,6 +297,7 @@ const pipes = {
 				bird.y + bird.radius > bottomPipeYPos &&
 				bird.y - bird.radius < bottomPipeYPos + this.h){
 					state.current = state.over;
+				HIT.play();
 			}
 
 			// Move the pipes to the left
@@ -261,11 +307,15 @@ const pipes = {
 			if (p.x + this.w <= 0){
 				this.position.shift();
 				score.value += 1;
-
+				SCORE_S.play();
 				score.best = Math.max(score.value, score.best);
 				localStorage.setItem("best", score.best);
 			}
 		}
+	},
+
+	reset : function(){
+		this.position = [];
 	}
 }
 
@@ -286,13 +336,16 @@ const score = {
 		} else if (state.current == state.over){
 			// Score value
 			context.font = "25px Teko";
-			context.fillText(this.value, 225, 178);
-			context.strokeText(this.value, 225, 178);
+			context.fillText(this.value, 225, 188);
+			context.strokeText(this.value, 225, 188);
 
 			// Best score
-			context.fillText(this.best, 225, 220);
-			context.strokeText(this.best, 225, 220);
+			context.fillText(this.best, 225, 228);
+			context.strokeText(this.best, 225, 228);
 		}
+	},
+	reset : function(){
+		this.value = 0;
 	}
 }
 
