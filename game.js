@@ -61,11 +61,20 @@ const foreground = {
 	x : 0,
 	y : canvas.height - 112,
 
+	dx : 2,
+
 	draw : function(){
 		context.drawImage(sprite, this.sX, this.sY, this.w, this.h, 
 						  this.x, this.y, this.w, this.h);
 		context.drawImage(sprite, this.sX, this.sY, this.w, this.h, 
 						  this.x + this.w, this.y, this.w, this.h);
+	},
+
+	update : function(){
+		if (state.current == state.game){
+			this.x = (this.x - this.dx) % (this.w/2);
+		}
+
 	}
 }
 
@@ -176,12 +185,71 @@ const gameOver = {
 	}
 }
 
+// Pipes
+const pipes = {
+	position : [],
+
+	top : {
+		sX : 553,
+		sY : 0
+	},
+	bottom : {
+		sX : 502,
+		sY : 0
+	},
+
+	w : 53,
+	h : 400,
+	gap : 85,
+	maxYPos : -150,
+	dx : 2,
+
+	draw : function(){
+		for (let i = 0; i < this.position.length; i++){
+			let p = this.position[i];
+
+			let topYPos = p.y;
+			let bottomYPos = p.y + this.h + this.gap;
+
+			// Top pipe
+			context.drawImage(sprite, this.top.sX, this.top.sY, this.w, this.h, 
+						  	  p.x, topYPos, this.w, this.h);
+
+			// Bottom pipe
+			context.drawImage(sprite, this.bottom.sX, this.bottom.sY, this.w, this.h, 
+						  	  p.x, bottomYPos, this.w, this.h);
+		}
+	},
+
+	update : function(){
+		if (state.current !== state.game) return;
+
+		if(frames % 100 == 0){
+			this.position.push({
+				x : canvas.width,
+				y : this.maxYPos * (Math.random() + 1)
+			});
+		}
+		for (let i = 0; i < this.position.length; i ++){
+			let p = this.position[i];
+
+			p.x -= this.dx;
+
+			// if the pipes do beyond canvas, we delete them from the array
+			if (p.x + this.w <= 0){
+				this.position.shift();
+			}
+		}
+	}
+}
+
 // Draw
 function draw(){
 	context.fillStyle = "#70c5ce";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	background.draw();
+	pipes.draw();
 	foreground.draw();
 	bird.draw();
 	getReady.draw();
@@ -191,6 +259,8 @@ function draw(){
 // Update
 function update(){
 	bird.update();
+	foreground.update();
+	pipes.update();
 }
 
 // Loop
