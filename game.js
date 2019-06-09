@@ -94,6 +94,17 @@ const bird = {
 	flap : function(){
 
 	},
+
+	update : function(){
+		// If the game state is getReady. The bird must flap slowly
+		this.period = state.current == state.getReady ? 10 : 5;
+
+		// We need inc the franme by 1 each period
+		this.frame += frames % this.period == 0 ? 1 : 0;
+
+		// Frame goes from 0 to 4, them again 0
+		this.frame = this.frame % this.animation.length;
+	}
 }
 
 // Get ready message
@@ -144,7 +155,7 @@ function draw(){
 
 // Update
 function update(){
-
+	bird.update();
 }
 
 // Loop
