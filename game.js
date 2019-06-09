@@ -260,7 +260,38 @@ const pipes = {
 			// if the pipes do beyond canvas, we delete them from the array
 			if (p.x + this.w <= 0){
 				this.position.shift();
+				score.value += 1;
+
+				score.best = Math.max(score.value, score.best);
+				localStorage.setItem("best", score.best);
 			}
+		}
+	}
+}
+
+// Score 
+const score = {
+	best : parseInt(localStorage.getItem("best")) || 0,
+	value : 0,
+
+	draw : function(){
+		context.fillStyle = "#fff";
+		context.strokeStyle = "#000";
+
+		if (state.current == state.game){
+			context.lineWidth = 2;
+			context.font = "35px Teko";
+			context.fillText(this.value, canvas.width/2, 50);
+			context.strokeText(this.value, canvas.width/2, 50);
+		} else if (state.current == state.over){
+			// Score value
+			context.font = "25px Teko";
+			context.fillText(this.value, 225, 178);
+			context.strokeText(this.value, 225, 178);
+
+			// Best score
+			context.fillText(this.best, 225, 220);
+			context.strokeText(this.best, 225, 220);
 		}
 	}
 }
@@ -276,6 +307,7 @@ function draw(){
 	bird.draw();
 	getReady.draw();
 	gameOver.draw();
+	score.draw();
 }
 
 // Update
