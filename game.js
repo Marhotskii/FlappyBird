@@ -183,6 +183,12 @@ const bird = {
 				}
 			}
 
+			// If the bird improve the upper limit, do not let the bird fly to the screen border
+			if (this.y - this.h/2 <= 0) {
+				this.y = 0 + this.h/2;
+				this.speed = 0;
+			}
+
 			// If the speed is grater than the jump means the brd is falling down
 			if (this.speed >= this.jump){
 				this.rotation = 90 * DEGREE;
